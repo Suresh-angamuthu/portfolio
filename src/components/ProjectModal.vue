@@ -1,19 +1,34 @@
 <script setup>
-import { watch, onUnmounted, ref, nextTick } from 'vue'
+import { watch, onUnmounted, ref, nextTick, computed } from 'vue'
+import { projects } from '../data/profile'
+import { activeProject } from '../store'
+import ProjectIcon from './ProjectIcon.vue'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({ project: Object })
 const emit = defineEmits(['close'])
 const closeBtn = ref(null)
+const sheet = ref(null)
 
-const onKey = (e) => e.key === 'Escape' && emit('close')
+const index = computed(() => projects.findIndex((p) => p.id === props.project?.id))
+function go(step) {
+  activeProject.value = projects[(index.value + step + projects.length) % projects.length]
+  sheet.value?.scrollTo({ top: 0 })
+}
 
-watch(() => props.project, async (p) => {
+const onKey = (e) => {
+  if (e.key === 'Escape') emit('close')
+  if (e.key === 'ArrowRight') go(1)
+  if (e.key === 'ArrowLeft') go(-1)
+}
+
+watch(() => props.project, async (p, prev) => {
   document.body.style.overflow = p ? 'hidden' : ''
-  if (p) {
+  if (p && !prev) {
     window.addEventListener('keydown', onKey)
     await nextTick()
     closeBtn.value?.focus()
-  } else {
+  } else if (!p) {
     window.removeEventListener('keydown', onKey)
   }
 })
@@ -26,35 +41,50 @@ onUnmounted(() => {
 
 <template>
   <Teleport to="body">
-    <Transition enter-from-class="opacity-0" leave-to-class="opacity-0" enter-active-class="transition" leave-active-class="transition">
-      <div v-if="project" class="fixed inset-0 z-50 flex items-end justify-center bg-navy-950/70 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+    <Transition enter-from-class="opacity-0" leave-to-class="opacity-0" enter-active-class="transition duration-300" leave-active-class="transition duration-200">
+      <div v-if="project" class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-md sm:items-center sm:p-6"
            @click.self="emit('close')">
-        <div role="dialog" aria-modal="true" :aria-label="project.title"
-             class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-white p-6 shadow-2xl sm:rounded-2xl sm:p-8 dark:bg-navy-900">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <span class="chip">{{ project.domain }}</span>
-              <h3 class="mt-3 text-2xl font-extrabold text-navy-900 dark:text-white">{{ project.name }}</h3>
-              <p class="text-slate-500 dark:text-slate-400">{{ project.title }}</p>
+        <div ref="sheet" role="dialog" aria-modal="true" :aria-label="`${project.name} case study`"
+             class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-[28px] bg-page shadow-2xl sm:rounded-[28px]">
+          <div class="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-glass px-5 py-3 backdrop-blur-xl sm:px-8">
+            <div class="flex items-center gap-1">
+              <button @click="go(-1)" class="grid h-9 w-9 place-items-center rounded-full text-mute hover:bg-alt hover:text-ink" aria-label="Previous project"><AppIcon name="chevronL" class="h-5 w-5" /></button>
+              <button @click="go(1)" class="grid h-9 w-9 place-items-center rounded-full text-mute hover:bg-alt hover:text-ink" aria-label="Next project"><AppIcon name="chevronR" class="h-5 w-5" /></button>
+              <span class="ml-2 text-[13px] text-mute">{{ index + 1 }} of {{ projects.length }}</span>
             </div>
             <button ref="closeBtn" @click="emit('close')" aria-label="Close"
-                    class="grid h-9 w-9 flex-none place-items-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10">
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                    class="grid h-9 w-9 place-items-center rounded-full bg-alt text-mute hover:text-ink">
+              <AppIcon name="close" class="h-4 w-4" />
             </button>
           </div>
 
-          <div v-for="d in project.details" :key="d.h" class="mt-6">
-            <h4 class="font-mono text-sm text-brand-700 dark:text-brand-300">{{ d.h }}</h4>
-            <p v-if="d.p" class="mt-2 leading-relaxed text-slate-700 dark:text-slate-300">{{ d.p }}</p>
-            <ul v-if="d.list" class="mt-2 space-y-2">
-              <li v-for="item in d.list" :key="item" class="flex gap-2 text-slate-700 dark:text-slate-300">
-                <span class="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-brand-500"></span><span>{{ item }}</span>
-              </li>
-            </ul>
-          </div>
+          <div class="px-6 pb-10 pt-8 sm:px-12 sm:pt-12">
+            <div class="flex flex-col items-center text-center">
+              <ProjectIcon :id="project.id" class="h-20 w-20" />
+              <p class="mt-5 text-[14px] font-semibold uppercase tracking-wider text-mute">{{ project.domain }}</p>
+              <h3 class="mt-1 text-[40px] font-semibold leading-none tracking-[-0.03em] sm:text-[56px]">{{ project.name }}</h3>
+              <p class="mt-3 text-[19px] tracking-tight text-mute sm:text-[21px]">{{ project.title }}</p>
+              <p class="mt-6 max-w-2xl text-[17px] leading-relaxed">{{ project.summary }}</p>
+            </div>
 
-          <div class="mt-6 flex flex-wrap gap-1.5 border-t border-slate-200 pt-5 dark:border-white/10">
-            <span v-for="t in project.stack" :key="t" class="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-600 dark:bg-white/5 dark:text-slate-400">{{ t }}</span>
+            <div class="mt-10 grid gap-4">
+              <section v-for="d in project.details" :key="d.h" class="rounded-[22px] bg-alt p-6 sm:p-8">
+                <h4 class="text-[21px] font-semibold tracking-tight">{{ d.h }}</h4>
+                <p v-if="d.p" class="mt-3 text-[17px] leading-relaxed text-mute">{{ d.p }}</p>
+                <ul v-if="d.list" class="mt-4 space-y-3">
+                  <li v-for="item in d.list" :key="item" class="flex gap-3 text-[17px] leading-relaxed text-mute">
+                    <AppIcon name="check" class="mt-1.5 h-4 w-4 flex-none text-link" /><span>{{ item }}</span>
+                  </li>
+                </ul>
+              </section>
+            </div>
+
+            <div class="mt-8">
+              <p class="text-[13px] font-medium uppercase tracking-wider text-mute">Built with</p>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <span v-for="t in project.stack" :key="t" class="pill">{{ t }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

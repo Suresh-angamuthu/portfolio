@@ -1,56 +1,68 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { projects } from '../data/profile'
-import ProjectModal from './ProjectModal.vue'
+import { activeProject } from '../store'
+import ProjectIcon from './ProjectIcon.vue'
+import AppIcon from './AppIcon.vue'
 
 const domains = ['All', ...new Set(projects.map((p) => p.domain))]
 const filter = ref('All')
-const active = ref(null)
-
 const shown = computed(() => (filter.value === 'All' ? projects : projects.filter((p) => p.domain === filter.value)))
+// the first tile is a wide black "featured" tile when more than one project is shown
+const feat = (i) => i === 0 && shown.value.length > 1
+// a single project, or an unpaired last tile, spans the full row
+const wide = (i) => shown.value.length === 1 || (i === shown.value.length - 1 && shown.value.length % 2 === 0)
 </script>
 
 <template>
-  <section id="projects" class="section">
-    <div v-reveal class="flex flex-wrap items-end justify-between gap-6">
-      <div>
-        <p class="eyebrow">03 / Projects</p>
-        <h2 class="heading">Six products, six industries.</h2>
-        <p class="mt-3 max-w-xl text-slate-600 dark:text-slate-300">Client projects built at Ardhika Software Technologies. Open a project for the problem, what I built and the engineering behind it.</p>
+  <section id="work" class="band bg-alt">
+    <div class="wrap-wide">
+      <div v-reveal class="text-center">
+        <p class="eyebrow">Selected work</p>
+        <h2 class="headline mt-2">Six products. Six industries.</h2>
+        <p class="lede mx-auto mt-4 max-w-2xl">Client products I built end to end at Ardhika Software Technologies. Open any one for the problem, what I built and the engineering behind it.</p>
       </div>
-      <div class="flex flex-wrap gap-2" role="tablist" aria-label="Filter projects by industry">
-        <button v-for="d in domains" :key="d" @click="filter = d" role="tab" :aria-selected="filter === d"
-                class="rounded-full border px-3.5 py-1.5 text-sm font-medium transition"
-                :class="filter === d
-                  ? 'border-navy-900 bg-navy-900 text-white dark:border-brand-300 dark:bg-brand-300 dark:text-navy-950'
-                  : 'border-slate-300 text-slate-600 hover:border-slate-400 dark:border-white/15 dark:text-slate-300'">{{ d }}</button>
+
+      <!-- segmented control -->
+      <div v-reveal="100" class="mt-10 flex justify-center">
+        <div class="rail flex max-w-full gap-1 overflow-x-auto rounded-full bg-tile p-1 shadow-sm ring-1 ring-line" role="tablist" aria-label="Filter projects by industry">
+          <button v-for="d in domains" :key="d" @click="filter = d" role="tab" :aria-selected="filter === d"
+                  class="whitespace-nowrap rounded-full px-4 py-2 text-[14px] font-medium transition"
+                  :class="filter === d ? 'bg-ink text-page' : 'text-mute hover:text-ink'">{{ d }}</button>
+        </div>
       </div>
-    </div>
 
-    <div class="mt-10 grid gap-6 md:grid-cols-2">
-      <article v-for="p in shown" :key="p.id" v-reveal
-               class="card group flex flex-col p-6 transition hover:-translate-y-1 hover:border-brand-500/50 hover:shadow-lg sm:p-7">
-        <div class="flex items-center justify-between">
-          <span class="chip">{{ p.domain }}</span>
-          <span class="font-mono text-xs text-slate-400">{{ p.name }}</span>
-        </div>
-        <h3 class="mt-4 text-xl font-bold text-navy-900 dark:text-white">{{ p.title }}</h3>
-        <p class="mt-2 text-slate-600 dark:text-slate-300">{{ p.summary }}</p>
-        <ul class="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-300">
-          <li v-for="h in p.highlights" :key="h" class="flex gap-2">
-            <svg class="mt-0.5 h-4 w-4 flex-none text-brand-600 dark:text-brand-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>
-            <span>{{ h }}</span>
-          </li>
-        </ul>
-        <div class="mt-5 flex flex-wrap gap-1.5">
-          <span v-for="t in p.stack" :key="t" class="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-[11px] text-slate-600 dark:bg-white/5 dark:text-slate-400">{{ t }}</span>
-        </div>
-        <button @click="active = p" class="mt-6 self-start font-semibold text-brand-700 hover:underline dark:text-brand-300">
-          Read the case study &rarr;
-        </button>
-      </article>
-    </div>
+      <TransitionGroup tag="div" class="mt-10 grid gap-4 lg:grid-cols-2"
+                       enter-from-class="opacity-0 scale-[0.98]" enter-active-class="transition duration-500" leave-active-class="hidden">
+        <article v-for="(p, i) in shown" :key="p.id"
+                 class="group relative flex flex-col overflow-hidden rounded-[28px] p-8 transition duration-500 hover:shadow-2xl sm:p-12"
+                 :class="[feat(i) ? 'bg-black text-white ring-line lg:col-span-2 dark:ring-1' : 'bg-tile',
+                          wide(i) ? 'lg:col-span-2' : '']">
+          <div :class="feat(i) ? 'lg:grid lg:grid-cols-2 lg:items-center lg:gap-12' : ''">
+            <div class="flex flex-col items-center text-center" :class="feat(i) ? 'lg:items-start lg:text-left' : ''">
+              <ProjectIcon :id="p.id" class="h-20 w-20 transition duration-500 group-hover:scale-105 sm:h-24 sm:w-24" />
+              <p class="mt-6 text-[14px] font-semibold uppercase tracking-wider" :class="feat(i) ? 'text-white/60' : 'text-mute'">{{ p.domain }}</p>
+              <h3 class="mt-1 text-[40px] font-semibold leading-none tracking-[-0.03em] sm:text-[48px]">{{ p.name }}</h3>
+              <p class="mt-3 text-[19px] leading-snug tracking-tight sm:text-[21px]" :class="feat(i) ? 'text-white/80' : 'text-mute'">{{ p.title }}</p>
+              <div class="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+                <button @click="activeProject = p" class="more" :class="feat(i) ? 'text-[#2997ff]' : ''">Read case study</button>
+              </div>
+            </div>
 
-    <ProjectModal :project="active" @close="active = null" />
+            <ul class="mt-8 space-y-3 text-left text-[15px] leading-relaxed" :class="feat(i) ? 'text-white/80 lg:mt-0' : 'text-mute'">
+              <li v-for="h in p.highlights" :key="h" class="flex gap-3">
+                <AppIcon name="check" class="mt-1 h-4 w-4 flex-none" :class="feat(i) ? 'text-[#2997ff]' : 'text-link'" />
+                <span>{{ h }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="mt-8 flex flex-wrap justify-center gap-1.5" :class="feat(i) ? 'lg:justify-start' : ''">
+            <span v-for="t in p.stack" :key="t" class="rounded-full px-3 py-1 text-[12px] font-medium"
+                  :class="feat(i) ? 'bg-white/10 text-white/80' : 'bg-alt text-mute'">{{ t }}</span>
+          </div>
+        </article>
+      </TransitionGroup>
+    </div>
   </section>
 </template>

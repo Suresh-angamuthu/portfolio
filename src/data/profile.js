@@ -225,3 +225,41 @@ export const education = {
   degree: 'Bachelor of Science, Computer Science',
   school: 'Hindustan College of Arts & Science, Chennai',
 }
+
+// What recruiters see first: a one-glance summary.
+export const recruiter = {
+  availability: 'Open to senior full-stack and backend roles',
+  summary: 'Senior Full Stack Engineer, 6 years. Elixir / Phoenix backends and Vue 3 frontends for multi-tenant SaaS.',
+  facts: [
+    { k: 'Role', v: 'Senior Full Stack Engineer' },
+    { k: 'Experience', v: '6 years' },
+    { k: 'Core stack', v: 'Elixir, Phoenix, PostgreSQL, Vue 3' },
+    { k: 'Also', v: 'Node.js, Firebase, Nuxt.js, LiveView' },
+    { k: 'Domains', v: 'EdTech, facility mgmt, climate tech, retail, manufacturing, agri' },
+    { k: 'Location', v: 'Chennai, India' },
+  ],
+}
+
+export const strengths = [
+  { t: 'End-to-end ownership', d: 'From the first client call to data model, API, UI and production release.', icon: 'route' },
+  { t: 'Payments done right', d: 'Signed callbacks, idempotent updates and automatic reconciliation of pending transactions.', icon: 'card' },
+  { t: 'Multi-tenant SaaS', d: 'Schema-per-tenant designs that onboard new clients by subdomain, without new deployments.', icon: 'layers' },
+  { t: 'Fault-tolerant jobs', d: 'OTP supervisors and Oban workers, isolated so a failing job never takes down the API.', icon: 'shield' },
+  { t: 'Clean data pipelines', d: 'Bulk imports with row-level validation, previews and clear error reports.', icon: 'table' },
+  { t: 'Performance tuning', d: 'Schema redesign, indexing and precomputed data that made reports up to 40% faster.', icon: 'bolt' },
+]
+
+// "How I build": the delivery path used on every product.
+export const process = [
+  { step: 'Understand', d: 'Sit with the client, map the real workflow and agree what "done" means. More than 100 requirement discussions so far.' },
+  { step: 'Model the data', d: 'Design the PostgreSQL schema first: tenancy, audit history and the queries reports will need.' },
+  { step: 'Build the API', d: 'Phoenix or Node.js APIs with RBAC, signed webhooks and background jobs for anything slow or retryable.' },
+  { step: 'Craft the UI', d: 'Vue 3 portals with Tailwind, shadcn-vue or Vuetify, built for the people who use them all day.' },
+  { step: 'Ship and run', d: 'Elixir releases on Linux servers, Agile sprints and production support after launch.' },
+]
+
+// Scrolling tech strip in the hero.
+export const marquee = [
+  'Elixir', 'Phoenix', 'LiveView', 'OTP', 'Oban', 'Ecto', 'PostgreSQL', 'Vue 3', 'Pinia', 'Nuxt.js',
+  'Tailwind CSS', 'shadcn-vue', 'Node.js', 'Express.js', 'Firebase', 'Razorpay', 'BillDesk', 'Capacitor',
+]

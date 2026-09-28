@@ -2,32 +2,97 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme {
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --color-brand-50: #effcf9;
-  --color-brand-100: #c9f4ec;
-  --color-brand-300: #5eead4;
-  --color-brand-500: #14b8a6;
-  --color-brand-600: #0d9488;
-  --color-brand-700: #0f766e;
-  --color-navy-800: #13254a;
-  --color-navy-900: #0f1f3d;
-  --color-navy-950: #0a1530;
+/* Semantic tokens: components use bg-page, text-ink, etc. and flip automatically in dark mode. */
+:root {
+  --page: #ffffff;
+  --alt: #f5f5f7;
+  --tile: #ffffff;
+  --ink: #1d1d1f;
+  --mute: #6e6e73;
+  --line: rgb(0 0 0 / 0.1);
+  --link: #0066cc;
+  --glass: rgb(255 255 255 / 0.72);
+}
+.dark {
+  --page: #000000;
+  --alt: #0b0b0c;
+  --tile: #1c1c1e;
+  --ink: #f5f5f7;
+  --mute: #a1a1a6;
+  --line: rgb(255 255 255 / 0.14);
+  --link: #2997ff;
+  --glass: rgb(22 22 23 / 0.72);
 }
 
-html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
-body { @apply bg-white text-slate-800 antialiased dark:bg-navy-950 dark:text-slate-200; }
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --color-page: var(--page);
+  --color-alt: var(--alt);
+  --color-tile: var(--tile);
+  --color-ink: var(--ink);
+  --color-mute: var(--mute);
+  --color-line: var(--line);
+  --color-link: var(--link);
+  --color-glass: var(--glass);
+  --color-accent: #0071e3;
+  --color-accent-hover: #0077ed;
+}
 
-.section { @apply mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-24; }
-.eyebrow { @apply font-mono text-sm tracking-wide text-brand-700 dark:text-brand-300; }
-.heading { @apply mt-2 text-3xl font-extrabold tracking-tight text-navy-900 sm:text-4xl dark:text-white; }
-.card { @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-navy-900; }
-.chip { @apply rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 dark:bg-brand-500/10 dark:text-brand-300; }
+html { scroll-behavior: smooth; scroll-padding-top: 4rem; }
+body {
+  @apply bg-page font-sans text-ink antialiased;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: #0071e3; color: #fff; }
 
-.reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+@layer components {
+/* Layout */
+.wrap { @apply mx-auto w-full max-w-[1024px] px-4 sm:px-6; }
+.wrap-wide { @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6; }
+.band { @apply py-20 sm:py-28; }
+
+/* Type scale, modelled on apple.com */
+.eyebrow { @apply text-[17px] font-semibold tracking-[-0.01em] text-mute; }
+.display { @apply text-[44px] leading-[1.05] font-semibold tracking-[-0.03em] sm:text-[64px] lg:text-[80px]; }
+.headline { @apply text-[32px] leading-[1.1] font-semibold tracking-[-0.025em] sm:text-[48px] lg:text-[56px]; }
+.title { @apply text-[24px] leading-[1.15] font-semibold tracking-[-0.02em] sm:text-[32px]; }
+.lede { @apply text-[19px] leading-[1.45] tracking-[-0.01em] text-mute sm:text-[21px]; }
+
+/* Controls */
+.btn { @apply inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-[15px] font-medium transition active:scale-[0.98]; }
+.btn-primary { @apply bg-accent text-white hover:bg-accent-hover; }
+.btn-ghost { @apply border border-accent text-accent hover:bg-accent hover:text-white dark:border-link dark:text-link dark:hover:bg-link dark:hover:text-black; }
+.more { @apply inline-flex items-center gap-0.5 text-[17px] text-link hover:underline; }
+.more::after { content: "\203A"; @apply ml-0.5 text-[1.15em] leading-none; }
+
+.card { @apply rounded-[28px] bg-tile; }
+.pill { @apply rounded-full bg-alt px-3 py-1 text-[13px] text-ink; }
+
+.gradient-text {
+  background: linear-gradient(90deg, #0071e3 0%, #7a5af8 45%, #e5484d 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+}
+
+/* Scroll reveal (v-reveal) */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d, 0ms); }
 .reveal.shown { opacity: 1; transform: none; }
+
+/* Tech-stack marquee */
+.marquee { mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+.marquee-track { animation: marquee 40s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* Horizontal card rail */
+.rail { scrollbar-width: none; scroll-snap-type: x mandatory; }
+.rail::-webkit-scrollbar { display: none; }
+.rail > * { scroll-snap-align: start; }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
+  .marquee-track { animation: none; }
 }
