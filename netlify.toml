@@ -1,3 +1,10 @@
 [build]
   command = "npm run build"
   publish = "dist"
+
+# Force the resume to download (with a readable filename) even in browsers and
+# in-app webviews that ignore the <a download> attribute.
+[[headers]]
+  for = "/Suresh_A2.pdf"
+  [headers.values]
+    Content-Disposition = 'attachment; filename="Suresh_A_Senior_Full_Stack_Engineer_Resume.pdf"'
