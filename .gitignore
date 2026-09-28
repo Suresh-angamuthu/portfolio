@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # Local notes (never publish)
-CLAUDE.local.md
+*.local.md
