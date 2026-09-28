@@ -61,7 +61,7 @@ const tone = { k: 'text-[#c678dd]', t: 'text-[#e5c07b]', s: 'text-[#98c379]', a:
         <figure class="relative overflow-hidden rounded-2xl bg-[#1e2127] text-left shadow-2xl ring-1 ring-black/10">
           <div class="flex items-center gap-2 border-b border-white/10 px-4 py-3">
             <span class="h-3 w-3 rounded-full bg-[#ff5f57]"></span><span class="h-3 w-3 rounded-full bg-[#febc2e]"></span><span class="h-3 w-3 rounded-full bg-[#28c840]"></span>
-            <figcaption class="ml-3 font-mono text-[12px] text-[#7f848e]">lib/payments/reconciler.ex</figcaption>
+            <span class="ml-3 font-mono text-[12px] text-[#7f848e]">lib/payments/reconciler.ex</span>
           </div>
           <pre class="overflow-x-auto p-5 font-mono text-[12.5px] leading-6 sm:p-6 sm:text-[13.5px]"><code><template v-for="(tok, i) in code" :key="i"><br v-if="tok[0] === 'n'" /><span v-else :class="tone[tok[0]]">{{ tok[1] }}</span></template></code></pre>
         </figure>
